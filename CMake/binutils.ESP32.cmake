@@ -677,6 +677,7 @@ macro(nf_add_idf_as_library)
         esp_eth
         esp_psram
         littlefs
+        esp_adc
     )
 
     # set list with the libraries for IDF components added
@@ -693,6 +694,7 @@ macro(nf_add_idf_as_library)
         idf::esp_eth
         idf::esp_psram
         idf::littlefs
+        idf::esp_adc
     )
 
     if(HAL_USE_BLE_OPTION)
