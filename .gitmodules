@@ -3,3 +3,6 @@
 	url = https://github.com/nanoframework/nf-Community-Targets.git
 	shallow = true
 	ignore = dirty
+[submodule "InteropAssemblies/CA.Library"]
+	path = InteropAssemblies/CA.Library
+	url = https://github.com/cognitive-advantage/ControlBoard-Interops.git
