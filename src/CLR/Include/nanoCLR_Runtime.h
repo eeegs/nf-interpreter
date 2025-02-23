@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -1437,7 +1437,7 @@ struct CLR_RT_AppDomain : public CLR_RT_ObjectToEvent_Destination // EVENT HEAP 
     CLR_RT_DblLinkedList m_appDomainAssemblies;
     CLR_RT_HeapBlock *m_globalLock;                          // OBJECT HEAP - DO RELOCATION -
     CLR_RT_HeapBlock_String *m_strName;                      // OBJECT HEAP - DO RELOCATION -
-    CLR_RT_HeapBlock m_outOfMemoryException;                 // NO RELOCATION -
+    CLR_RT_HeapBlock *m_outOfMemoryException;                // OBJECT HEAP - DO RELOCATION -
     CLR_RT_AppDomainAssembly *m_appDomainAssemblyLastAccess; // EVENT HEAP  - NO RELOCATION -
     bool m_fCanBeUnloaded;
 
@@ -2599,7 +2599,11 @@ struct CLR_RT_GarbageCollector
         CLR_UINT8 *m_start;
         CLR_UINT8 *m_end;
         CLR_UINT8 *m_destination;
-        CLR_INT32 m_offset;
+#ifdef _WIN64
+        CLR_UINT64 m_offset;
+#else
+        CLR_UINT32 m_offset;
+#endif
     };
 
     //--//
@@ -3653,8 +3657,8 @@ struct CLR_RT_ExecutionEngine
     CLR_RT_Thread *m_cctorThread;             // EVENT HEAP - NO RELOCATION -
 
 #if !defined(NANOCLR_APPDOMAINS)
-    CLR_RT_HeapBlock *m_globalLock;          // OBJECT HEAP - DO RELOCATION -
-    CLR_RT_HeapBlock m_outOfMemoryException; // NO RELOCATION -
+    CLR_RT_HeapBlock *m_globalLock;           // OBJECT HEAP - DO RELOCATION -
+    CLR_RT_HeapBlock *m_outOfMemoryException; // OBJECT HEAP - DO RELOCATION -
 #endif
 
     CLR_RT_HeapBlock *m_currentUICulture; // OBJECT HEAP - DO RELOCATION -

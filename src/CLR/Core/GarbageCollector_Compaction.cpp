@@ -10,12 +10,13 @@
 CLR_UINT32 CLR_RT_GarbageCollector::ExecuteCompaction()
 {
     NATIVE_PROFILE_CLR_CORE();
-#if defined(NANOCLR_PROFILE_NEW_ALLOCATIONS)
-    g_CLR_PRF_Profiler.RecordHeapCompactionBegin();
-#endif
 
     // bump the number of heap compactions
     m_numberOfCompactions++;
+
+#if defined(NANOCLR_PROFILE_NEW_ALLOCATIONS)
+    g_CLR_PRF_Profiler.RecordHeapCompactionBegin();
+#endif
 
 #if defined(NANOCLR_TRACE_MEMORY_STATS)
 
@@ -138,7 +139,7 @@ void CLR_RT_GarbageCollector::Heap_Compact()
         while (true)
         {
             //
-            // We can only move backward.
+            // We can only move backwards.
             //
             if (currentSource < freeRegion)
             {
@@ -201,14 +202,11 @@ void CLR_RT_GarbageCollector::Heap_Compact()
                 relocCurrent->m_destination = (CLR_UINT8 *)freeRegion;
                 relocCurrent->m_start = (CLR_UINT8 *)currentSource;
 
-                if (relocCurrent->m_destination < relocCurrent->m_start)
-                {
-                    relocCurrent->m_offset = -(CLR_INT32)(relocCurrent->m_start - relocCurrent->m_destination);
-                }
-                else
-                {
-                    relocCurrent->m_offset = (CLR_INT32)(relocCurrent->m_destination - relocCurrent->m_start);
-                }
+#ifdef _WIN64
+                relocCurrent->m_offset = (CLR_UINT64)(relocCurrent->m_destination - relocCurrent->m_start);
+#else
+                relocCurrent->m_offset = (CLR_UINT32)(relocCurrent->m_destination - relocCurrent->m_start);
+#endif
 
                 //
                 // Are the free block and the last moved block adjacent?
@@ -401,15 +399,11 @@ void CLR_RT_GarbageCollector::Heap_Relocate_AddBlock(CLR_UINT8 *dst, CLR_UINT8 *
     reloc->m_start = src;
     reloc->m_end = &src[length];
     reloc->m_destination = dst;
-
-    if (reloc->m_destination < reloc->m_start)
-    {
-        reloc->m_offset = -(CLR_INT32)(reloc->m_start - reloc->m_destination);
-    }
-    else
-    {
-        reloc->m_offset = (CLR_INT32)(reloc->m_destination - reloc->m_start);
-    }
+#ifdef _WIN64
+    reloc->m_offset = (CLR_UINT64)(dst - src);
+#else
+    reloc->m_offset = (CLR_UINT32)(dst - src);
+#endif
 
     if (++m_relocCount == m_relocTotal)
     {
